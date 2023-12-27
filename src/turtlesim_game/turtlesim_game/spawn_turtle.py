@@ -21,7 +21,7 @@ class SpawnTurtleNode(Node):
         # Set up the timer without calling the function
         self.publish_coordinates = self.create_publisher(Pose, "spawn_coordinates", 10)
         self.publish_turtle_name = self.create_publisher(String, "turtle_name", 10)
-        self.create_timer(15, partial(self.spawn_turtle_timer_callback))
+        self.create_timer(20, partial(self.spawn_turtle_timer_callback))
 
     def spawn_turtle_timer_callback(self):
         # Call the spawn_turtle function with random values
