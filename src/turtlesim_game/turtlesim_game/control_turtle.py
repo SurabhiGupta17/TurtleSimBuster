@@ -36,7 +36,8 @@ class ControlTurtleNode(Node):
         self.main_x = 0
         self.main_y = 0 
         self.main_theta = 0
-        self.Kp = 0.2
+        self.Kp_angular = 0.2
+        self.Kp_linear = 0.2
         self.angular_z = 0.0
 
     def spawned_turtle_location_callback(self, msg):
