@@ -1,0 +1,10 @@
+# Ignore build and install directories
+/build/
+/install/
+
+# Ignore log directories
+/log/
+
+# Ignore VSCode settings
+.vscode/
+
