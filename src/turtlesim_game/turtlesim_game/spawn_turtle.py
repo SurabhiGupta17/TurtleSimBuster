@@ -10,7 +10,6 @@ from scipy.spatial import distance
 from turtlesim.msg import Pose
 from turtlesim.srv import Spawn
 from turtlesim.srv import Kill
-from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 
 class SpawnTurtleNode(Node):
