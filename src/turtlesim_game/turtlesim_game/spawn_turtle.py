@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""
-This node spawns turtles at random coordinates at intervals.
-"""
 
 import rclpy
 import random
 import math
 from rclpy.node import Node
 from functools import partial
+from scipy.spatial import distance
 
 from turtlesim.msg import Pose
 from turtlesim.srv import Spawn
@@ -26,7 +24,8 @@ class SpawnTurtleNode(Node):
         self.angular_z = 0.0
         self.NoMotion = False
         self.FaceTarget = False
-        self.Kp = 0.5
+        self.Kp_angular = 1
+        self.Kp_linear = 0.7
 
         #Create subscribers
         self.main_turtle_pose_sub = self.create_subscription(
@@ -40,7 +39,7 @@ class SpawnTurtleNode(Node):
 
         #Create timers
         self.create_timer(0.5, self.cmd_vel_pub_cb)
-        self.create_timer(20, partial(self.spawn_turtle_timer_cb))
+        self.create_timer(10, partial(self.spawn_turtle_timer_cb))
 
     #Create callbacks
     def main_turtle_pose_cb(self, msg):
@@ -59,7 +58,7 @@ class SpawnTurtleNode(Node):
             self.NoMotion = False
             self.MoveToTarget = False
             self.KillTurtle = False
-        elif (abs(self.spawn_x-self.main_x)<0.4 and abs(self.spawn_y-self.main_y)<0.4):
+        elif (abs(self.spawn_x-self.main_x)<0.2 and abs(self.spawn_y-self.main_y)<0.2):
             self.MoveToTarget = False
             self.NoMotion = False
             self.FaceTarget = False
@@ -80,14 +79,16 @@ class SpawnTurtleNode(Node):
             self.get_logger().info("FaceTarget")
             self.linear_x = 0.0
             self.desired_theta = math.atan2(self.spawn_y - self.main_y, self.spawn_x - self.main_x)
-            self.angular_z = self.Kp*(self.desired_theta - self.main_theta)
+            self.angular_z = self.Kp_angular*(self.desired_theta - self.main_theta)
             if abs(self.desired_theta - self.main_theta)<0.01:
                 self.angular_z = 0.0
                 self.turtle_updated = self.name_of_turtle
         elif (self.MoveToTarget):
             self.get_logger().info("MoveToTarget")
             self.angular_z = 0.0
-            self.linear_x = 3.0
+            self.spawn_location = (self.spawn_x, self.spawn_y)
+            self.main_location = (self.main_x, self.main_y)
+            self.linear_x = self.Kp_linear * distance.euclidean(self.spawn_location, self.main_location)
         elif (self.KillTurtle):
             self.get_logger().info("KillTurtle")
             self.linear_x = 0.0
