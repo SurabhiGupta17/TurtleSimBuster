@@ -6,5 +6,7 @@ Currently, this uses the P controller for linear.x velocity and angular.z veloci
 
 ## Demo
 
-![](https://github.com/SurabhiGupta17/TurtleSimBuster/blob/main/assets/Demo.gif)
+<p align="center">
+  <img src="https://github.com/SurabhiGupta17/TurtleSimBuster/blob/main/assets/Demo.gif" alt="Demo">
+</p>
 
