@@ -38,7 +38,6 @@ class SpawnTurtleNode(Node):
 
         #Create timers
         self.create_timer(0.5, self.cmd_vel_pub_cb)
-        #self.create_timer(10, partial(self.spawn_turtle_timer_cb))
 
         self.spawn_turtle_timer_cb()
 
@@ -64,7 +63,7 @@ class SpawnTurtleNode(Node):
             self.NoMotion = False
             self.FaceTarget = False
             self.KillTurtle = True
-        else: #(abs(self.spawn_x-self.main_x)<0.8 and abs(self.spawn_y-self.main_y)<0.8):
+        else: 
             self.KillTurtle = False
             self.NoMotion = False
             self.MoveToTarget = True
