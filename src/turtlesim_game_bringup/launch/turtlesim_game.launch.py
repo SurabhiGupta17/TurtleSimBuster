@@ -10,10 +10,10 @@ def generate_launch_description():
         executable="spawn_turtle"
     )
 
-    control_turtle = Node(
-        package="turtlesim_game",
-        executable="control_turtle"
-    )
+    #control_turtle = Node(
+        #package="turtlesim_game",
+        #executable="control_turtle"
+    #)
 
     turtlesim_node = Node(
         package="turtlesim",
@@ -22,6 +22,6 @@ def generate_launch_description():
 
     ld.add_action(turtlesim_node)
     ld.add_action(spawn_turtle)
-    ld.add_action(control_turtle)
+    #ld.add_action(control_turtle)
     
     return ld
