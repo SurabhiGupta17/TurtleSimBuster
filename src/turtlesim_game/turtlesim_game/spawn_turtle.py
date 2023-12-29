@@ -38,7 +38,9 @@ class SpawnTurtleNode(Node):
 
         #Create timers
         self.create_timer(0.5, self.cmd_vel_pub_cb)
-        self.create_timer(10, partial(self.spawn_turtle_timer_cb))
+        #self.create_timer(10, partial(self.spawn_turtle_timer_cb))
+
+        self.spawn_turtle_timer_cb()
 
     #Create callbacks
     def main_turtle_pose_cb(self, msg):
@@ -139,6 +141,7 @@ class SpawnTurtleNode(Node):
     #Kill turtle
     def kill_turtle(self):
             self.call_kill_turtle(self.name_of_turtle)
+            self.spawn_turtle_timer_cb()
         
     def call_kill_turtle(self, name):
         client = self.create_client(Kill, "kill")
