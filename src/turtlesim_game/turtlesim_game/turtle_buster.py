@@ -12,19 +12,17 @@ from turtlesim.srv import Spawn
 from turtlesim.srv import Kill
 from geometry_msgs.msg import Twist
 
-class SpawnTurtleNode(Node):
+class TurtleBusterNode(Node):
     def __init__(self): 
-        super().__init__("spawn_turtle")
+        super().__init__("turtle_buster")
 
         #Initialise values
         self.counter_ = 1
         self.name_of_turtle = self.turtle_updated = "turtle_0"
         self.linear_x = 0.0
         self.angular_z = 0.0
-        self.NoMotion = False
-        self.FaceTarget = False
-        self.Kp_angular = 1
-        self.Kp_linear = 0.7
+        self.Kp_angular = 2.0
+        self.Kp_linear = 1.3
 
         #Create subscribers
         self.main_turtle_pose_sub = self.create_subscription(
@@ -47,62 +45,29 @@ class SpawnTurtleNode(Node):
         self.main_y = msg.y
         self.main_theta = msg.theta
 
-    def check_phase(self):
-        if (self.name_of_turtle == "turtle_0"):
-            self.NoMotion = True
-            self.FaceTarget = False
-            self.MoveToTarget = False
-            self.KillTurtle = False
-        elif (self.turtle_updated != self.name_of_turtle):
-            self.FaceTarget = True
-            self.NoMotion = False
-            self.MoveToTarget = False
-            self.KillTurtle = False
-        elif (abs(self.spawn_x-self.main_x)<0.2 and abs(self.spawn_y-self.main_y)<0.2):
-            self.MoveToTarget = False
-            self.NoMotion = False
-            self.FaceTarget = False
-            self.KillTurtle = True
-        else: 
-            self.KillTurtle = False
-            self.NoMotion = False
-            self.MoveToTarget = True
-            self.FaceTarget = False
-
 
     def update_velocity(self):
-        if (self.NoMotion):
-            self.linear_x = 0.0
-            self.angular_z = 0.0
-            self.get_logger().info("NoMotion")
-        elif(self.FaceTarget):
-            self.get_logger().info("FaceTarget")
-            self.linear_x = 0.0
-            self.desired_theta = math.atan2(self.spawn_y - self.main_y, self.spawn_x - self.main_x)
-            self.angular_z = self.Kp_angular*(self.desired_theta - self.main_theta)
-            if abs(self.desired_theta - self.main_theta)<0.01:
-                self.angular_z = 0.0
-                self.turtle_updated = self.name_of_turtle
-        elif (self.MoveToTarget):
-            self.get_logger().info("MoveToTarget")
-            self.angular_z = 0.0
             self.spawn_location = (self.spawn_x, self.spawn_y)
             self.main_location = (self.main_x, self.main_y)
-            self.linear_x = self.Kp_linear * distance.euclidean(self.spawn_location, self.main_location)
-        elif (self.KillTurtle):
-            self.get_logger().info("KillTurtle")
-            self.linear_x = 0.0
-            self.angular_z = 0.0
-            self.kill_turtle()
-            
+            self.linear_x = self.Kp_linear*distance.euclidean(self.spawn_location, self.main_location)
+
+            self.desired_theta = math.atan2(self.spawn_y - self.main_y, self.spawn_x - self.main_x)
+            self.theta_difference = (self.desired_theta - self.main_theta)
+
+            #Normalization of angle difference
+            if self.theta_difference > math.pi:
+                self.theta_difference -= 2 * math.pi
+            elif self.theta_difference < -math.pi:
+                self.theta_difference += 2 * math.pi
+            self.angular_z = self.Kp_angular*self.theta_difference
         
     def cmd_vel_pub_cb(self):
         velocity = Twist()
-        self.check_phase()
         self.update_velocity()
         velocity.linear.x = self.linear_x
         velocity.angular.z = self.angular_z
         self.cmd_vel_pub.publish(velocity)
+        self.kill_turtle()
 
 
     #Spawn turtle
@@ -139,8 +104,9 @@ class SpawnTurtleNode(Node):
     
     #Kill turtle
     def kill_turtle(self):
-            self.call_kill_turtle(self.name_of_turtle)
-            self.spawn_turtle_timer_cb()
+            if abs(self.spawn_x - self.main_x)<0.2 and abs(self.spawn_y - self.main_y)<0.2:
+                self.call_kill_turtle(self.name_of_turtle)
+                self.spawn_turtle_timer_cb()
         
     def call_kill_turtle(self, name):
         client = self.create_client(Kill, "kill")
@@ -163,7 +129,7 @@ class SpawnTurtleNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = SpawnTurtleNode()
+    node = TurtleBusterNode()
     rclpy.spin(node)
     rclpy.shutdown()
 

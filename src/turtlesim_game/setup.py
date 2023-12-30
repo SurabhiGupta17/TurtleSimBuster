@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "spawn_turtle = turtlesim_game.spawn_turtle:main"
+            "turtle_buster = turtlesim_game.turtle_buster:main"
             ],
     },
 )
